@@ -39,7 +39,13 @@ INSERT INTO tracks (track_name, track_duration, album_id) VALUES
     ('Track4', 200, 2),
     ('Track5', 190, 3),
     ('Track6', 220, 3),
-    ('Track7', 1800, 2);
+    ('Track7', 1800, 2),
+    ('My best of the best', 260, 2),
+    ('Myself', 280, 3),
+    ('Bemy', 10, 3),
+    ('Мой худший день', 90, 3),
+    ('И друг мой грузовик...', 400, 1),
+    ('Мойка', 350, 3);
 
 INSERT INTO compilations_tracks (compilation_id, track_id) VALUES
     (1, 1),

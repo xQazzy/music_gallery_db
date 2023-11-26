@@ -20,10 +20,29 @@ SELECT artist_name
 FROM artists
 WHERE POSITION(' ' IN artist_name) = 0;
 
--- task 2_5
+-- task 2_5.1
 SELECT track_name
 FROM tracks
-WHERE LOWER(track_name) LIKE 'мой' OR LOWER(track_name) LIKE 'my';
+WHERE
+  track_name ILIKE 'my %' OR track_name ILIKE 'мой %' OR
+  track_name ILIKE '% my' OR track_name ILIKE '% мой' OR
+  track_name ILIKE '% my %' OR track_name ILIKE '% мой %' OR
+  track_name ILIKE 'my' OR track_name ILIKE 'мой'
+ORDER BY track_name;
+
+-- task 2_5.2
+SELECT track_name
+FROM tracks
+WHERE
+  string_to_array(lower(track_name), ' ') && ARRAY['my', 'мой']
+ORDER BY track_name;
+
+-- task 2_5.3
+SELECT track_name
+FROM tracks
+WHERE
+  track_name ~* '\m(my|мой)\M'
+ORDER BY track_name;
 
 -- TASK 3
 -- task 3_1
@@ -45,11 +64,14 @@ JOIN tracks t ON a.album_id = t.album_id
 GROUP BY a.album_name;
 
 -- task 3_4
-SELECT ar.artist_name
+SELECT artist_name
 FROM artists ar
-LEFT JOIN albums_artists aa ON ar.artist_id = aa.artist_id
-LEFT JOIN albums a ON aa.album_id = a.album_id
-WHERE (a.release_year IS NULL OR a.release_year != '2020-01-01');
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM albums_artists aa
+    JOIN albums a ON aa.album_id = a.album_id
+    WHERE aa.artist_id = ar.artist_id AND EXTRACT(YEAR FROM a.release_year) = 2020
+);
 
 -- task 3_5
 SELECT c.compilation_name
@@ -66,7 +88,11 @@ WHERE ar.artist_name = 'Artist2';
 SELECT DISTINCT a.album_name
 FROM albums a
 JOIN albums_artists aa1 ON a.album_id = aa1.album_id
-JOIN albums_artists aa2 ON aa1.album_id = aa2.album_id AND aa1.artist_id <> aa2.artist_id;
+JOIN albums_artists aa2 ON a.album_id = aa2.album_id AND aa1.artist_id <> aa2.artist_id
+JOIN categories_artists ca1 ON aa1.artist_id = ca1.artist_id
+JOIN categories_artists ca2 ON aa2.artist_id = ca2.artist_id AND ca1.category_id <> ca2.category_id
+GROUP BY a.album_name
+HAVING COUNT(DISTINCT ca1.category_id) > 1 OR COUNT(DISTINCT ca2.category_id) > 1;
 
 -- task 4_2
 SELECT DISTINCT t.track_name
@@ -84,8 +110,13 @@ WHERE t.track_duration = (SELECT MIN(track_duration) FROM tracks);
 
 -- task 4_4
 SELECT a.album_name
-FROM albums a LEFT JOIN tracks t ON a.album_id = t.album_id
+FROM albums a
+LEFT JOIN tracks t ON a.album_id = t.album_id
 GROUP BY a.album_name
 HAVING COUNT(t.track_id) = (
-    SELECT MIN(track_count) FROM (SELECT COUNT(track_id) AS track_count FROM tracks GROUP BY album_id) AS min_counts
+    SELECT COUNT(track_id) AS track_count
+    FROM tracks
+    GROUP BY album_id
+    ORDER BY track_count
+    LIMIT 1
 );

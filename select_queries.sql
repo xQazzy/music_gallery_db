@@ -87,12 +87,11 @@ WHERE ar.artist_name = 'Artist2';
 -- task 4_1
 SELECT DISTINCT a.album_name
 FROM albums a
-JOIN albums_artists aa1 ON a.album_id = aa1.album_id
-JOIN albums_artists aa2 ON a.album_id = aa2.album_id AND aa1.artist_id <> aa2.artist_id
-JOIN categories_artists ca1 ON aa1.artist_id = ca1.artist_id
-JOIN categories_artists ca2 ON aa2.artist_id = ca2.artist_id AND ca1.category_id <> ca2.category_id
+JOIN albums_artists aa ON a.album_id = aa.album_id
+JOIN categories_artists ca1 ON aa.artist_id = ca1.artist_id
+JOIN categories_artists ca2 ON aa.artist_id = ca2.artist_id AND ca1.category_id <> ca2.category_id
 GROUP BY a.album_name
-HAVING COUNT(DISTINCT ca1.category_id) > 1 OR COUNT(DISTINCT ca2.category_id) > 1;
+HAVING COUNT(DISTINCT ca1.category_id) > 1;
 
 -- task 4_2
 SELECT DISTINCT t.track_name

@@ -11,8 +11,10 @@ INSERT INTO artists (artist_name) VALUES
 
 INSERT INTO categories_artists (category_id, artist_id) VALUES
     (1, 1),
+    (2, 1),
     (2, 2),
     (3, 3),
+    (3, 4),
     (1, 4);
 
 INSERT INTO albums (album_name, release_year) VALUES
